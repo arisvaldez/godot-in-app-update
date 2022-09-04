@@ -5,13 +5,10 @@ import static android.app.Activity.RESULT_OK;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.view.View;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.play.core.appupdate.AppUpdateInfo;
 import com.google.android.play.core.appupdate.AppUpdateManager;
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
@@ -51,7 +48,8 @@ public class InAppUpdate extends GodotPlugin {
     @Override
     public Set<SignalInfo> getPluginSignals() {
         Set<SignalInfo> signals = new HashSet<>();
-        signals.add(new SignalInfo("testSignal", String.class));
+        signals.add(new SignalInfo("installation_accepted", String.class));
+        signals.add(new SignalInfo("installation_cancelled", String.class));
         return signals;
     }
 
@@ -60,6 +58,7 @@ public class InAppUpdate extends GodotPlugin {
     public List<String> getPluginMethods() {
         List<String> pluginsMethods = new ArrayList<String>();
         pluginsMethods.add("checkForUpdate");
+        pluginsMethods.add("InstallFlexibleUpdate");
         return pluginsMethods;
     }
 
@@ -70,7 +69,13 @@ public class InAppUpdate extends GodotPlugin {
                 if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
                     try {
                         mAppUpdateManager.startUpdateFlowForResult(appUpdateInfo, AppUpdateType.FLEXIBLE, activity, RC_APP_UPDATE);
-
+                    } catch (IntentSender.SendIntentException e) {
+                        e.printStackTrace();
+                    }
+                }
+                else if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
+                    try {
+                        mAppUpdateManager.startUpdateFlowForResult(appUpdateInfo, AppUpdateType.IMMEDIATE, activity, RC_APP_UPDATE);
                     } catch (IntentSender.SendIntentException e) {
                         e.printStackTrace();
                     }
@@ -94,18 +99,17 @@ public class InAppUpdate extends GodotPlugin {
         emitSignal("update_downloaded");
     }
 
-    public void InstallFlexibleUpdate() {
-        mAppUpdateManager.completeUpdate();
-    }
-
-
     @Override
     public void onMainActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == RC_APP_UPDATE && resultCode != RESULT_OK) {
-            emitSignal("installation_canceled");
+            emitSignal("installation_cancelled");
         } else {
             emitSignal("installation_accepted");
         }
         super.onMainActivityResult(requestCode, resultCode, data);
+    }
+
+    public void InstallFlexibleUpdate() {
+        mAppUpdateManager.completeUpdate();
     }
 }
