@@ -1,7 +1,8 @@
 /*************************************************************************/
+/*  MIT License                                                          */
 /*  InAppUpdate.java                                                     */
 /*************************************************************************/
-/* Copyright (c) 2022 Aris Valdez.                                       */
+/* Copyright (c) 2022 Arismendy Polanco                                  */
 /*                                                                       */
 /* Permission is hereby granted, free of charge, to any person obtaining */
 /* a copy of this software and associated documentation files (the       */
@@ -22,6 +23,7 @@
 /* TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE     */
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
+
 
 package com.cashewgames.inappupdate;
 
