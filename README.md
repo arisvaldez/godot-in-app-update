@@ -38,11 +38,11 @@ remote=["com.google.android.play:app-update:2.0.0"]
 custom_maven_repos=[]
 ```
 
-2. Rename the resulting Android Studio build file (app-debug.aar) to `InAppUpdate.aar`, take this file together with `InAppUpdate.gdap` file and put them in the plugins folder of you Godot Project `android->plugins`
+2. Open You project in Godot Engine
 
-3. Open You project in Godot Engine
+3. Set up [Android Custom Builds](https://docs.godotengine.org/en/stable/tutorials/export/android_custom_build.html#doc-android-custom-build)
 
-4. Set up [Android Custom Builds](https://docs.godotengine.org/en/stable/tutorials/export/android_custom_build.html#doc-android-custom-build)
+4. Rename the resulting Android Studio build file (app-debug.aar) to `InAppUpdate.aar`, take this file together with `InAppUpdate.gdap` file and put them in the plugins folder of you Godot Project `android->plugins`
 
 5. Enable the InAppUpdate plugin
 
