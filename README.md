@@ -29,7 +29,7 @@ In App Update Android Module for Godot Game.
 
 name="InAppUpdate"
 binary_type="local"
-binary="in-app-update.aar" # put here the name of library
+binary="InAppUpdate.aar" # put here the name of library
 
 [dependencies]
 
@@ -88,7 +88,7 @@ func _ready():
 	    pass
 ```
 
-This plugin use 2 method for install updates `IMMEDIATE` and `FLEXIBLE` the plugin apply `IMMEDIATE` automatically, but for `FLEXIBLE` you need call a method for apply.
+This plugin use 2 method for install updates `IMMEDIATE` and `FLEXIBLE` the plugin apply `IMMEDIATE` automatically, but for `FLEXIBLE` you need call a method for apply the update.
 
 The next code is a example for use (using a button for call method):
 
@@ -102,3 +102,7 @@ func on_update_downloaded():
 func _on_Button_pressed():
 	InAppUpdateManager.installUpdate();
 ```
+
+## Limitations
+
+This plugin only work for Android API 21+, for more info check the [android library docs](https://developer.android.com/guide/playcore/in-app-updates/kotlin-java?hl=en-419#setup)
