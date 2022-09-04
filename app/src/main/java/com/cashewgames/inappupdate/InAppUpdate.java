@@ -21,6 +21,7 @@ import com.google.android.play.core.install.model.UpdateAvailability;
 import org.godotengine.godot.Godot;
 import org.godotengine.godot.plugin.GodotPlugin;
 import org.godotengine.godot.plugin.SignalInfo;
+import org.godotengine.godot.plugin.UsedByGodot;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -31,6 +32,8 @@ public class InAppUpdate extends GodotPlugin {
     private Activity activity;
     private AppUpdateManager mAppUpdateManager;
     private static final int RC_APP_UPDATE = 100;
+    private String updateType = "flexible";
+
 
     public InAppUpdate(Godot godot) {
         super(godot);
@@ -48,36 +51,31 @@ public class InAppUpdate extends GodotPlugin {
     @Override
     public Set<SignalInfo> getPluginSignals() {
         Set<SignalInfo> signals = new HashSet<>();
-        signals.add(new SignalInfo("installation_accepted", String.class));
-        signals.add(new SignalInfo("installation_cancelled", String.class));
+        signals.add(new SignalInfo("installation_accepted"));
+        signals.add(new SignalInfo("installation_cancelled"));
+        signals.add(new SignalInfo("installation_error", String.class));
+        signals.add(new SignalInfo("update_downloaded"));
         return signals;
     }
 
-    @NonNull
-    @Override
-    public List<String> getPluginMethods() {
-        List<String> pluginsMethods = new ArrayList<String>();
-        pluginsMethods.add("checkForUpdate");
-        pluginsMethods.add("InstallFlexibleUpdate");
-        return pluginsMethods;
-    }
-
+    @UsedByGodot
     public void checkForUpdate() {
         mAppUpdateManager.getAppUpdateInfo().addOnSuccessListener(new OnSuccessListener<AppUpdateInfo>() {
             @Override
             public void onSuccess(AppUpdateInfo appUpdateInfo) {
                 if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
                     try {
+                        updateType = "flexible";
                         mAppUpdateManager.startUpdateFlowForResult(appUpdateInfo, AppUpdateType.FLEXIBLE, activity, RC_APP_UPDATE);
                     } catch (IntentSender.SendIntentException e) {
-                        e.printStackTrace();
+                        emitSignal("installation_error", e.getMessage());
                     }
-                }
-                else if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
+                } else if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
                     try {
+                        updateType = "immediate";
                         mAppUpdateManager.startUpdateFlowForResult(appUpdateInfo, AppUpdateType.IMMEDIATE, activity, RC_APP_UPDATE);
                     } catch (IntentSender.SendIntentException e) {
-                        e.printStackTrace();
+                        emitSignal("installation_error", e.getMessage());
                     }
                 }
             }
@@ -90,14 +88,10 @@ public class InAppUpdate extends GodotPlugin {
         @Override
         public void onStateUpdate(@NonNull InstallState installState) {
             if (installState.installStatus() == InstallStatus.DOWNLOADED) {
-                showCompletedUpdate();
+                emitSignal("update_downloaded");
             }
         }
     };
-
-    private void showCompletedUpdate() {
-        emitSignal("update_downloaded");
-    }
 
     @Override
     public void onMainActivityResult(int requestCode, int resultCode, Intent data) {
@@ -109,7 +103,15 @@ public class InAppUpdate extends GodotPlugin {
         super.onMainActivityResult(requestCode, resultCode, data);
     }
 
-    public void InstallFlexibleUpdate() {
-        mAppUpdateManager.completeUpdate();
+    @UsedByGodot
+    public void installUpdate() {
+        if(updateType.equals("flexible")) {
+            mAppUpdateManager.completeUpdate();
+        }
+    }
+
+    @UsedByGodot
+    public String getUpdateType() {
+        return updateType;
     }
 }
